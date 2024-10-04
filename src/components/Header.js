@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -33,7 +33,10 @@ const socials = [
 ];
 
 const Header = () => {
-  const handleClick = (anchor) => () => {
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [headerReplacement, setHeaderReplacement] = useState(0);
+
+  const handleClick = (anchor) => {
     const id = `${anchor}-section`;
     const element = document.getElementById(id);
     if (element) {
@@ -44,13 +47,28 @@ const Header = () => {
     }
   };
 
+  useEffect(() => {
+    const handleScroll = (event) => {
+      if(window.scrollY > lastScrollY) {
+        setHeaderReplacement(-200);
+      } else if (window.scrollY < lastScrollY) {
+        setHeaderReplacement(0);
+      }
+      setLastScrollY(window.scrollY);
+    };
+
+    document.addEventListener('scroll', handleScroll);
+    return () => document.removeEventListener('scroll', handleScroll);
+  });
+
   return (
     <Box
       position="fixed"
       top={0}
       left={0}
       right={0}
-      translateY={0}
+      transform="auto"
+      translateY={headerReplacement}
       transitionProperty="transform"
       transitionDuration=".3s"
       transitionTimingFunction="ease-in-out"
@@ -76,7 +94,8 @@ const Header = () => {
           </nav>
           <nav>
             <HStack spacing={8}>
-              {/* Add links to Projects and Contact me section */}
+              <a role="button" onClick={() => {handleClick('projects');}}>Projects</a>
+              <a role="button" onClick={() => {handleClick('contactme');}}>Contact Me</a>
             </HStack>
           </nav>
         </HStack>
